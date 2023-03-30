@@ -8,10 +8,11 @@ using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using ExtensibleHttp.Interfaces;
 
 namespace ExtensibleHttp.Sample.Implementation
 {
-    internal class SampleToken
+    internal class SampleToken : IExpirable
     {
         readonly static HttpClient _httpClient = new();
         readonly static SemaphoreSlim _lock = new(1);
