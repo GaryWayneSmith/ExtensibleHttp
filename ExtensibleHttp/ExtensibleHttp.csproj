@@ -1,17 +1,45 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Title>Extensible Http Client</Title>
-    <Authors>Gary Smith</Authors>
-    <RepositoryUrl>https://github.com/GaryWayneSmith/ExtensibleHttp</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <AnalysisLevel>latest-all</AnalysisLevel>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>Extensible Http Client</Title>
+		<Authors>Gary Wayne Smith</Authors>
+		<RepositoryUrl>https://github.com/GaryWayneSmith/ExtensibleHttp</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<AnalysisLevel>latest-all</AnalysisLevel>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<LangVersion>7.3</LangVersion>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
+	<!--
+	<ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+		<PackageReference Include="System.Net.Http" Version="4.3.4" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+	</ItemGroup>
+	-->
+
+	<ItemGroup>
+		<None Include="..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+
+	</ItemGroup>
 
 </Project>

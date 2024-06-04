@@ -12,11 +12,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using Microsoft.Extensions.Logging;
+
 namespace ExtensibleHttp.Interfaces
 {
-    public interface IEndpointConfig
-    {
-        IRequestConfig GetRequestConfig();
-        ApiFormat ApiFormat { get; }
-    }
+	public interface IEndpointConfig
+	{
+		ILogger Logger { get; }
+		IRequestConfig GetRequestConfig();
+		ApiFormat ApiFormat { get; }
+	}
 }

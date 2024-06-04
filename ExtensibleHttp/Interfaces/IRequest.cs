@@ -17,24 +17,25 @@ using System.Threading.Tasks;
 
 namespace ExtensibleHttp.Interfaces
 {
-    public interface IRequest
-    {
-        string EndpointUri { get; }
-        HttpRequestMessage HttpRequest { get; }
-        HttpMethod Method { get; set; }
-        string BuildQueryParams();
-        IRequestConfig Config { get; }
-        string CorrelationId { get; }
+	public interface IRequest
+	{
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1056:URI-like properties should not be strings", Justification = "It's a partial Uri and as such would throw an error if used as an Uri")]
+		string EndpointUri { get; }
+		HttpRequestMessage HttpRequest { get; }
+		HttpMethod Method { get; set; }
+		string BuildQueryParams();
+		IRequestConfig Config { get; }
+		string CorrelationId { get; }
 
-        Task AddHeaders(CancellationToken cancellationToken);
-        Task AddUserAgentHeader(CancellationToken cancellationToken);
-        Task BuildUri(CancellationToken cancellationToken);
-        Task FinalizeRequest(CancellationToken cancellationToken);
-        Task SignRequest(CancellationToken cancellationToken);
-        Task ValidateAccessToken(CancellationToken cancellationToken);
+		Task AddHeaders(CancellationToken cancellationToken);
+		Task AddUserAgentHeader(CancellationToken cancellationToken);
+		Task BuildUri(CancellationToken cancellationToken);
+		Task FinalizeRequest(CancellationToken cancellationToken);
+		Task SignRequest(CancellationToken cancellationToken);
+		Task ValidateAccessToken(CancellationToken cancellationToken);
 
-        Task ValidateResponse(IResponse response, CancellationToken cancellationToken);
+		Task ValidateResponse(IResponse response, CancellationToken cancellationToken);
 
 
-    }
+	}
 }

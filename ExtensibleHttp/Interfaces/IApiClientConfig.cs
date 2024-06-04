@@ -14,7 +14,7 @@ limitations under the License.
 
 namespace ExtensibleHttp.Interfaces
 {
-    public interface IApiClientConfig : IEndpointConfig, IHttpConfig
-    {
-    }
+	public interface IApiClientConfig : IEndpointConfig, IHttpConfig
+	{
+	}
 }

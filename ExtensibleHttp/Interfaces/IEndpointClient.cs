@@ -15,7 +15,7 @@ limitations under the License.
 namespace ExtensibleHttp.Interfaces
 {
     public interface IEndpointClient
-    {
+	{
         IEndpointHttpHandler GetHttpHandler();
         IEndpointConfig GetEndpointConfig();
     }

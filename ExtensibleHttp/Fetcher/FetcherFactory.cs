@@ -13,11 +13,13 @@ limitations under the License.
 */
 
 using ExtensibleHttp.Interfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace ExtensibleHttp.Fetcher
 {
     public class FetcherFactory : IFetcherFactory
-    {
+	{
         private HttpFetcher httpFetcher;
 
         public IFetcher CreateFetcher(IHttpConfig config)

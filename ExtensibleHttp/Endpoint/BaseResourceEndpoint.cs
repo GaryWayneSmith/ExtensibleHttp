@@ -21,71 +21,68 @@ using System.Threading.Tasks;
 
 namespace ExtensibleHttp.Endpoint
 {
-    public class BaseResourceEndpoint
-    {
-        protected IEndpointConfig config;
-        protected IPayloadFactory payloadFactory;
-        protected IEndpointHttpHandler client;
-        protected IEndpointClient apiClient;
-        public object ApiException { get; private set; }
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1012:Abstract types should not have public constructors", Justification = "<Pending>")]
+	public abstract class BaseResourceEndpoint
+	{
+		protected IEndpointConfig Config { get; set; }
+		protected IPayloadFactory PayloadFactory { get; set; }
+		protected IEndpointHttpHandler Client { get; set; }
+		protected IEndpointClient ApiClient { get; set; }
+		public object ApiException { get; private set; }
 
+		public BaseResourceEndpoint(IEndpointClient apiClient)
+		{
+			ApiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
+			Client = apiClient.GetHttpHandler();
+			Config = apiClient.GetEndpointConfig();
+		}
 
-        public BaseResourceEndpoint(IEndpointClient apiClient)
-        {
-            this.apiClient = apiClient;
-            client = apiClient.GetHttpHandler();
-            config = apiClient.GetEndpointConfig();
-        }
+		public virtual async Task<string> ProcessStringResponse(IResponse response, CancellationToken cancellationToken)
+		{
+			if (response == null) throw new ArgumentNullException(nameof(response));
 
-        public async Task<string> ProcessStringResponse(IResponse response, CancellationToken cancellationToken)
-        {
-            if (!response.IsSuccessful)
-            {
-                var rawErrors = await response.GetPayloadAsString(cancellationToken);
-                //Debug.WriteLine(rawErrors);
-                return rawErrors;
-            }
-            string content = await response.GetPayloadAsString(cancellationToken);
-            //Debug.WriteLine(content);
-            return content;
-        }
+			if (!response.IsSuccessful)
+			{
+				var rawErrors = await response.GetPayloadAsString(cancellationToken).ConfigureAwait(false);
+				return rawErrors;
+			}
+			string content = await response.GetPayloadAsString(cancellationToken).ConfigureAwait(false);
+			return content;
+		}
 
+		public virtual async Task<TPayload> ProcessResponse<TPayload>(IResponse response, CancellationToken cancellationToken)
+		{
+			if (response == null) throw new ArgumentNullException(nameof(response));
 
-        public async Task<TPayload> ProcessResponse<TPayload>(IResponse response, CancellationToken cancellationToken)
-        {
-            if (!response.IsSuccessful)
-            {
-                var rawErrors = await response.GetPayloadAsString(cancellationToken);
-                Debug.WriteLine(rawErrors);
-                Exception ex;
-                try
-                {
-                    // More work needs to be done to put the Exception up to the Request level
-                    // so we can process them there as vendor type specific.
-                    //
-                    // We can create a custom payload factory per resource, so maybe that's
-                    // the final answer
-                    ex = payloadFactory.CreateApiException(config.ApiFormat, rawErrors, response);
-                }
-                catch (Exception e)
-                {
-                    var innerEx = new Exception("Error response is " + rawErrors, e);
-                    throw new InvalidValueException("Invalid error response received. Unable to parse with error!", innerEx);
-                }
+			if (!response.IsSuccessful)
+			{
+				var rawErrors = await response.GetPayloadAsString(cancellationToken).ConfigureAwait(false);
+				Debug.WriteLine(rawErrors);
+				Exception ex;
+				try
+				{
+					// More work needs to be done to put the Exception up to the Request level
+					// so we can process them there as vendor type specific.
+					//
+					// We can create a custom payload factory per resource, so maybe that's
+					// the final answer
+					ex = PayloadFactory.CreateApiException(Config.ApiFormat, rawErrors, response);
+				}
+				catch (Exception e)
+				{
+					var innerEx = new ApiException("Error response is " + rawErrors, e);
+					throw new InvalidValueException("Invalid error response received. Unable to parse with error!", innerEx);
+				}
+				throw ex;
+			}
+			string content = await response.GetPayloadAsString(cancellationToken).ConfigureAwait(false);
+			var serializer = PayloadFactory.GetSerializer(Config.ApiFormat);
+			return serializer.Deserialize<TPayload>(content);
+		}
 
-                throw ex;
-            }
-            string content = await response.GetPayloadAsString(cancellationToken);
-
-            //Debug.WriteLine(content);
-
-            var serializer = payloadFactory.GetSerializer(config.ApiFormat);
-            return serializer.Deserialize<TPayload>(content);
-        }
-
-        public ISerializer GetSerializer(ApiFormat apiFormat)
-        {
-            return payloadFactory.GetSerializer(apiFormat);
-        }
-    }
+		public ISerializer GetSerializer(ApiFormat apiFormat)
+		{
+			return PayloadFactory.GetSerializer(apiFormat);
+		}
+	}
 }

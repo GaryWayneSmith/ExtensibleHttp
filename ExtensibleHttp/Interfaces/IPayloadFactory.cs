@@ -15,10 +15,10 @@ using System;
 
 namespace ExtensibleHttp.Interfaces
 {
-    public interface IPayloadFactory
-    {
-        Exception CreateApiException(ApiFormat format, string content, IResponse response);
+	public interface IPayloadFactory
+	{
+		Exception CreateApiException(ApiFormat format, string content, IResponse response);
 
-        ISerializer GetSerializer(ApiFormat format);
-    }
+		ISerializer GetSerializer(ApiFormat format);
+	}
 }

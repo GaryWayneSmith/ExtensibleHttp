@@ -18,37 +18,37 @@ using System.Threading.Tasks;
 
 namespace ExtensibleHttp.Retry
 {
-    public class MultiTryPolicy : BasePolicy
-    {
-        public const int DEFAULT_DELAY = 5000;
-        public const int DEFAULT_RETRY_COUNT = 3;
+	public class MultiTryPolicy : BasePolicy
+	{
+		public const int DEFAULT_DELAY = 5000;
+		public const int DEFAULT_RETRY_COUNT = 3;
 
-        public int RetryCount { get; private set; } = DEFAULT_RETRY_COUNT;
-        public int DelayMs;
+		public int RetryCount { get; private set; } = DEFAULT_RETRY_COUNT;
+		public int DelayMs { get; set; }
 
-        public MultiTryPolicy(int attempts, int delayMs = DEFAULT_DELAY)
-        {
-            if (attempts < 1)
-            {
-                throw new InitException("Retry count should be more than 0");
-            }
-            RetryCount = attempts;
-            DelayMs = delayMs < 0 ? DEFAULT_DELAY : delayMs;
-        }
+		public MultiTryPolicy(int attempts, int delayMs = DEFAULT_DELAY)
+		{
+			if (attempts < 1)
+			{
+				throw new InitException("Retry count should be more than 0");
+			}
+			RetryCount = attempts;
+			DelayMs = delayMs < 0 ? DEFAULT_DELAY : delayMs;
+		}
 
-        public override async Task<IResponse> GetResponse(IFetcher fetcher, IRequest request, CancellationToken cancellationToken)
-        {
-            for (var i = 0; i < RetryCount; i++)
-            {
-                // give it a try
-                if (await ExecuteOnce(fetcher, request, cancellationToken))
-                    return response;
+		public override async Task<IResponse> GetResponse(IFetcher fetcher, IRequest request, CancellationToken cancellationToken)
+		{
+			for (var i = 0; i < RetryCount; i++)
+			{
+				// give it a try
+				if (await ExecuteOnce(fetcher, request, cancellationToken).ConfigureAwait(false))
+					return Response;
 
-                // give it a break before another retry
-                if (DelayMs > 0)
-                    await Task.Delay(DelayMs);
-            }
-            throw NoRetriesLeftException.Factory(RetryCount, latestException);
-        }
-    }
+				// give it a break before another retry
+				if (DelayMs > 0)
+					await Task.Delay(DelayMs, cancellationToken).ConfigureAwait(false);
+			}
+			throw NoRetriesLeftException.Factory(RetryCount, LatestException);
+		}
+	}
 }

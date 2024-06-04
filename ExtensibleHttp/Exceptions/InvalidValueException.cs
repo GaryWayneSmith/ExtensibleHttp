@@ -13,16 +13,19 @@ limitations under the License.
 */
 
 using System;
+using System.Runtime.Serialization;
 
 namespace ExtensibleHttp.Exceptions
 {
-    public class InvalidValueException : Exception
-    {
-        public InvalidValueException(string message) : base(message)
-        {
-        }
-        public InvalidValueException(string message, Exception exception) : base(message, exception)
-        {
-        }
-    }
+	[Serializable]
+	public class InvalidValueException : Exception
+	{
+		public InvalidValueException() : base() { }
+
+		public InvalidValueException(string message) : base(message) { }
+
+		public InvalidValueException(string message, Exception exception) : base(message, exception) { }
+
+		protected InvalidValueException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+	}
 }

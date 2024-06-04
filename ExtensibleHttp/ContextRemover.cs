@@ -18,7 +18,8 @@ using System.Threading;
 
 namespace ExtensibleHttp
 {
-    public struct ContextRemover : INotifyCompletion
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", Justification = "<Pending>")]
+	public struct ContextRemover : INotifyCompletion
     {
         public bool IsCompleted
         {
@@ -27,6 +28,8 @@ namespace ExtensibleHttp
 
         public void OnCompleted(Action continuation)
         {
+            if (continuation == null) throw new ArgumentNullException(nameof(continuation));    
+
             var prevContext = SynchronizationContext.Current;
             if (prevContext == null)
             {

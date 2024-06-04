@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 namespace ExtensibleHttp.Interfaces
 {
     public interface IFetcher
-    {
+	{
         Task<IResponse> ExecuteAsync(IRequest request, CancellationToken cancellationToken);
     }
 }

@@ -12,13 +12,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 using ExtensibleHttp.Interfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace ExtensibleHttp
 {
-    public class ApiClient : BaseApiClient
-    {
-        public ApiClient(IApiClientConfig config) : base(config)
-        {
-        }
-    }
+	public class ApiClient : BaseApiClient
+	{
+		public ApiClient(IApiClientConfig config)
+			: base(config)
+		{
+		}
+	}
 }

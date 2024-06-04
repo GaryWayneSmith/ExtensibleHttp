@@ -12,36 +12,32 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 using ExtensibleHttp.Interfaces;
-using ExtensibleHttp.Logger;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace ExtensibleHttp
 {
-    public abstract class BaseApiClient : IApiClient, IEndpointClient
-    {
-        protected IHttpFactory httpFactory = new HttpFactory();
+	public abstract class BaseApiClient : IApiClient, IEndpointClient
+	{
+#pragma warning disable CA1721 // Property names should not match get methods
+		protected IHttpFactory HttpFactory { get; set; } = new HttpFactory();
+		protected IHandler HttpHandler { get; set; }
+		protected IEndpointConfig Config { get; set; }
+#pragma warning restore CA1721 // Property names should not match get methods
 
-        protected IHandler httpHandler;
-        public IEndpointHttpHandler GetHttpHandler() => httpHandler;
+		public IEndpointHttpHandler GetHttpHandler() => HttpHandler;
+		public IEndpointConfig GetEndpointConfig() => Config;
 
-        protected IEndpointConfig config;
-        public IEndpointConfig GetEndpointConfig() => config;
+		protected BaseApiClient(IApiClientConfig cfg)
+		{
+			Config = cfg;
+			HttpHandler = HttpFactory.GetHttpHandler(cfg);
+		}
 
-        public BaseApiClient(IApiClientConfig cfg)
-        {
-            config = cfg;
-            httpHandler = httpFactory.GetHttpHandler(cfg);
-        }
-
-        public IRetryPolicy RetryPolicy
-        {
-            get { return httpHandler.RetryPolicy; }
-            set { httpHandler.RetryPolicy = value; }
-        }
-
-        public ILoggerAdapter Logger
-        {
-            get { return LoggerContainer.Logger; }
-            set { LoggerContainer.Logger = value; }
-        }
-    }
+		public IRetryPolicy RetryPolicy
+		{
+			get { return HttpHandler.RetryPolicy; }
+			set { HttpHandler.RetryPolicy = value; }
+		}
+	}
 }

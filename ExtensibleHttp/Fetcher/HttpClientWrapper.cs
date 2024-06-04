@@ -20,34 +20,32 @@ using System.Threading.Tasks;
 
 namespace ExtensibleHttp.Fetcher
 {
-    class HttpClientWrapper : IHttpClient
-    {
-        private static readonly HttpClient client;
+	sealed class HttpClientWrapper : IHttpClient
+	{
+		private static readonly HttpClient client = new HttpClient(new Logger.DefaultLogger(new HttpClientHandler()));
 
-        static HttpClientWrapper()
-        {
-            var loggingHandler = new Logger.Logger(new HttpClientHandler());
-            client = new HttpClient(loggingHandler);
-        }
+		public HttpClient HttpClient { get { return client; } }
 
-        public HttpClient HttpClient { get { return client; } }
+		public TimeSpan Timeout
+		{
+			get { return client.Timeout; }
+			set { client.Timeout = value; }
+		}
 
-        public TimeSpan Timeout
-        {
-            get { return client.Timeout; }
-            set { client.Timeout = value; }
-        }
+		public Uri BaseAddress
+		{
+			get { return client.BaseAddress; }
+			set { client.BaseAddress = value; }
+		}
 
-        public Uri BaseAddress
-        {
-            get { return client.BaseAddress; }
-            set { client.BaseAddress = value; }
-        }
-
-        public async Task<IResponse> SendAsync(IRequest request, CancellationToken cancellationToken)
-        {
-            var result = await client.SendAsync(request.HttpRequest);
-            return new Response(result, request.CorrelationId);
-        }
-    }
+		public async Task<IResponse> SendAsync(IRequest request, CancellationToken cancellationToken)
+		{
+			if (request.Config.Logger != null)
+			{
+				request.HttpRequest.Properties.Add(Logger.DefaultLogger.LOGGERKEY, request.Config.Logger);
+			}
+			var result = await client.SendAsync(request.HttpRequest, cancellationToken).ConfigureAwait(false);
+			return new Response(result, request.CorrelationId);
+		}
+	}
 }

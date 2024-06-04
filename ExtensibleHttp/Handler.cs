@@ -14,56 +14,66 @@ limitations under the License.
 using ExtensibleHttp.Fetcher;
 using ExtensibleHttp.Interfaces;
 using ExtensibleHttp.Retry;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace ExtensibleHttp
 {
-    public class Handler : IHandler
-    {
-        public static IFetcherFactory FetcherFactory = new FetcherFactory();
+	public class Handler : IHandler
+	{
+		public static IFetcherFactory FetcherFactory { get; private set; } = new FetcherFactory();
+		private readonly IHttpConfig _httpConfig;
+		public IFetcher Fetcher { get; private set; }
+		public IRetryPolicy RetryPolicy { get; set; }
 
-        private readonly IHttpConfig config;
+		public Handler(IHttpConfig apiConfig)
+		{
+			_httpConfig = apiConfig ?? throw new ArgumentNullException(nameof(apiConfig));
+			Fetcher = FetcherFactory.CreateFetcher(_httpConfig);
+			RetryPolicy = new SingleTryPolicy();
+		}
 
-        public IFetcher Fetcher { get; private set; }
+		private Task<IResponse> ExecuteAsync(IRequest request, CancellationToken cancellationToken)
+		{
+			if (request == null) throw new ArgumentNullException(nameof(request));
 
-        public IRetryPolicy RetryPolicy { get; set; }
+			return RetryPolicy.GetResponse(Fetcher, request, cancellationToken);
+		}
 
-        public Handler(IHttpConfig apiConfig)
-        {
-            config = apiConfig;
-            Fetcher = FetcherFactory.CreateFetcher(config);
-            RetryPolicy = new SingleTryPolicy();
-        }
+		public Task<IResponse> GetAsync(IRequest request, CancellationToken cancellationToken)
+		{
+			if (request == null) throw new ArgumentNullException(nameof(request));
 
-        private Task<IResponse> ExecuteAsync(IRequest request, CancellationToken cancellationToken)
-        {
-            return RetryPolicy.GetResponse(Fetcher, request, cancellationToken);
-        }
+			request.Method = HttpMethod.Get;
+			return ExecuteAsync(request, cancellationToken);
+		}
 
-        public Task<IResponse> GetAsync(IRequest request, CancellationToken cancellationToken)
-        {
-            request.Method = HttpMethod.Get;
-            return ExecuteAsync(request, cancellationToken);
-        }
+		public Task<IResponse> PostAsync(IRequest request, CancellationToken cancellationToken)
+		{
+			if (request == null) throw new ArgumentNullException(nameof(request));
 
-        public Task<IResponse> PostAsync(IRequest request, CancellationToken cancellationToken)
-        {
-            request.Method = HttpMethod.Post;
-            return ExecuteAsync(request, cancellationToken);
-        }
+			request.Method = HttpMethod.Post;
+			return ExecuteAsync(request, cancellationToken);
+		}
 
-        public Task<IResponse> PutAsync(IRequest request, CancellationToken cancellationToken)
-        {
-            request.Method = HttpMethod.Put;
-            return ExecuteAsync(request, cancellationToken);
-        }
+		public Task<IResponse> PutAsync(IRequest request, CancellationToken cancellationToken)
+		{
+			if (request == null) throw new ArgumentNullException(nameof(request));
 
-        public Task<IResponse> DeleteAsync(IRequest request, CancellationToken cancellationToken)
-        {
-            request.Method = HttpMethod.Delete;
-            return ExecuteAsync(request, cancellationToken);
-        }
-    }
+			request.Method = HttpMethod.Put;
+			return ExecuteAsync(request, cancellationToken);
+		}
+
+		public Task<IResponse> DeleteAsync(IRequest request, CancellationToken cancellationToken)
+		{
+			if (request == null) throw new ArgumentNullException(nameof(request));
+
+			request.Method = HttpMethod.Delete;
+			return ExecuteAsync(request, cancellationToken);
+		}
+	}
 }

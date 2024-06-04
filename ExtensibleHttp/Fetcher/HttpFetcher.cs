@@ -14,6 +14,8 @@ limitations under the License.
 
 using ExtensibleHttp.Exceptions;
 using ExtensibleHttp.Interfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Sockets;
 using System.Threading;
@@ -21,56 +23,62 @@ using System.Threading.Tasks;
 
 namespace ExtensibleHttp.Fetcher
 {
-    public class HttpFetcher : BaseFetcher
-    {
-        public IHttpClient client;
+	public class HttpFetcher : BaseFetcher
+	{
+		public IHttpClient Client { get; private set; }
 
-        public HttpFetcher(IHttpConfig config, IHttpClient httpClient) : base(config)
-        {
-            client = httpClient;
-            client.BaseAddress = new Uri(config.BaseUrl);
-            client.Timeout = TimeSpan.FromMilliseconds(config.RequestTimeoutMs);
-        }
+		public HttpFetcher(IHttpConfig httpConfig, IHttpClient httpClient) 
+			: base(httpConfig)
+		{
+			if (httpConfig == null) throw new ArgumentNullException(nameof(httpConfig));
 
-        override public async Task<IResponse> ExecuteAsync(IRequest request, CancellationToken cancellationToken)
-        {
-            if (request.EndpointUri == "")
-            {
-                throw new InvalidValueException("Empty URI for the endpoint!");
-            }
+			Client = httpClient;
+			Client.BaseAddress = httpConfig.BaseUri;
+			Client.Timeout = TimeSpan.FromMilliseconds(httpConfig.RequestTimeoutMs);
+		}
 
-            await request.ValidateAccessToken(cancellationToken);
-            await request.AddUserAgentHeader(cancellationToken);
-            await request.BuildUri(cancellationToken);
-            await request.FinalizeRequest(cancellationToken);
-            await request.AddHeaders(cancellationToken);
-            await request.SignRequest(cancellationToken);
+		override public async Task<IResponse> ExecuteAsync(IRequest request, CancellationToken cancellationToken)
+		{
+			if (request == null)
+			{
+				throw new ArgumentNullException(nameof(request));
+			}
+			if (string.IsNullOrWhiteSpace(request.EndpointUri))
+			{
+				throw new InvalidValueException("Empty URI for the endpoint!");
+			}
 
-            try
-            {
-                //await Util.LogToFile.WriteLogString(request.CorrelationId, request.HttpRequest.RequestUri.ToString(), "Uri", ".txt");
-                //await Util.LogToFile.WriteLogString(request.CorrelationId, request.HttpRequest.Content != null ? await request.HttpRequest.Content.ReadAsStringAsync() : "NO PAYLOAD", "Request", config.ApiFormat.ToString().ToLower());
+			await request.ValidateAccessToken(cancellationToken).ConfigureAwait(false);
+			await request.AddUserAgentHeader(cancellationToken).ConfigureAwait(false);
+			await request.BuildUri(cancellationToken).ConfigureAwait(false);
+			await request.FinalizeRequest(cancellationToken).ConfigureAwait(false);
+			await request.AddHeaders(cancellationToken).ConfigureAwait(false);
+			await request.SignRequest(cancellationToken).ConfigureAwait(false);
 
-                var response = await client.SendAsync(request, cancellationToken);
+			try
+			{
+				//await Util.LogToFile.WriteLogString(request.CorrelationId, request.HttpRequest.RequestUri.ToString(), "Uri", ".txt");
+				//await Util.LogToFile.WriteLogString(request.CorrelationId, request.HttpRequest.Content != null ? await request.HttpRequest.Content.ReadAsStringAsync() : "NO PAYLOAD", "Request", config.ApiFormat.ToString().ToLower());
+				var response = await Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
-                await request.ValidateResponse(response, cancellationToken);
+				await request.ValidateResponse(response, cancellationToken).ConfigureAwait(false);
 
-                return response;
-            }
-            catch (Exception ex) when (IsNetworkError(ex) || ex is TaskCanceledException)
-            {
-                // unable to connect to API because of network/timeout
-                throw new ConnectionException("Network error while connecting to the API", ex);
-            }
-        }
+				return response;
+			}
+			catch (Exception ex) when (IsNetworkError(ex) || ex is TaskCanceledException)
+			{
+				// unable to connect to API because of network/timeout
+				throw new ConnectionException("Network error while connecting to the API", ex);
+			}
+		}
 
-        private static bool IsNetworkError(Exception ex)
-        {
-            if (ex is SocketException)
-                return true;
-            if (ex.InnerException != null)
-                return IsNetworkError(ex.InnerException);
-            return false;
-        }
-    }
+		private static bool IsNetworkError(Exception ex)
+		{
+			if (ex is SocketException)
+				return true;
+			if (ex.InnerException != null)
+				return IsNetworkError(ex.InnerException);
+			return false;
+		}
+	}
 }

@@ -12,12 +12,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using System;
+using System.Runtime.Serialization;
+
 namespace ExtensibleHttp.Exceptions
 {
-    public class ConnectionException : HttpException
-    {
-        public ConnectionException(string message, System.Exception ex) : base(message, ex)
-        {
-        }
-    }
+	[Serializable]
+	public class ConnectionException : HttpException
+	{
+		public ConnectionException() : base() { }
+		public ConnectionException(string message) : base(message) { }
+		public ConnectionException(string message, System.Exception ex) : base(message, ex) { }
+		protected ConnectionException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+	}
 }

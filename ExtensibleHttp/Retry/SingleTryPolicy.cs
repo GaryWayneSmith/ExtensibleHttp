@@ -17,14 +17,14 @@ using System.Threading.Tasks;
 
 namespace ExtensibleHttp.Retry
 {
-    public class SingleTryPolicy : BasePolicy
-    {
-        public override async Task<IResponse> GetResponse(IFetcher fetcher, IRequest request, CancellationToken cancellationToken)
-        {
-            if (await ExecuteOnce(fetcher, request, cancellationToken))
-                return response;
-            else
-                throw latestException;
-        }
-    }
+	public class SingleTryPolicy : BasePolicy
+	{
+		public override async Task<IResponse> GetResponse(IFetcher fetcher, IRequest request, CancellationToken cancellationToken)
+		{
+			if (await ExecuteOnce(fetcher, request, cancellationToken).ConfigureAwait(false))
+				return Response;
+			else
+				throw LatestException;
+		}
+	}
 }

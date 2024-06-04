@@ -10,31 +10,44 @@ namespace ExtensibleHttp.Sample.Implementation
     {
         public SampleResource(ApiClient apiClient) : base(apiClient)
         {
-            payloadFactory = new PayloadFactory();
+            PayloadFactory = new PayloadFactory();
 
         }
 
         public async Task<SampleResult> PostData<T>(T payload, CancellationToken cancellationToken)
         {
             await new ContextRemover();
-            SampleRequest request = new SampleRequest((SampleConfig)config)
+            SampleRequest request = new((SampleConfig)Config)
             {
                 EndpointUri = $"/endpoint_to_call"
             };
             request.AddPayload(payload);
-            var response = await client.PostAsync(request, cancellationToken);
+            var response = await Client.PostAsync(request, cancellationToken);
             var result = await ProcessResponse<SampleResult>(response, cancellationToken);
             return result;
         }
 
-        public async Task<SampleResult> Getdata(int id, CancellationToken cancellationToken)
+        public async Task<SampleResult> Getdata(string force, CancellationToken cancellationToken)
         {
             await new ContextRemover();
-            SampleRequest request = new SampleRequest((SampleConfig)config)
+            SampleRequest request;
+
+            if (string.IsNullOrWhiteSpace(force))
             {
-                EndpointUri = $"/endpoint_to_call/{id}"
-            };
-            var response = await client.GetAsync(request, cancellationToken);
+                request = new SampleRequest((SampleConfig)Config)
+                {
+                    EndpointUri = $"/api",
+                };
+            }
+            else
+            {
+                request = new SampleRequest((SampleConfig)Config)
+                {
+                    EndpointUri = $"/api?force={force}",
+                };
+            }
+
+            var response = await Client.GetAsync(request, cancellationToken);
             var result = await ProcessResponse<SampleResult>(response, cancellationToken);
             return result;
         }

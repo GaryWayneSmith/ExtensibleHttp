@@ -12,13 +12,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using System;
+using System.Runtime.Serialization;
+
 namespace ExtensibleHttp.Exceptions
 {
-    public class GatewayException : HttpException
-    {
-        public GatewayException(string message) : base(message)
-        { }
-        public GatewayException(string message, System.Exception exception) : base(message, exception)
-        { }
-    }
+	[Serializable]
+	public class GatewayException : HttpException
+	{
+		public GatewayException() : base() { }
+		public GatewayException(string message) : base(message) { }
+		public GatewayException(string message, System.Exception exception) : base(message, exception) { }
+		protected GatewayException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+	}
 }

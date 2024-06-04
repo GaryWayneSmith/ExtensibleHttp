@@ -13,28 +13,44 @@ limitations under the License.
 */
 
 using ExtensibleHttp.Interfaces;
+using System;
+using System.Runtime.Serialization;
 
 namespace ExtensibleHttp.Exceptions
 {
-    public class ApiException : BaseException
-    {
-        public IErrorsPayload Details { get; private set; }
-        public IResponse Response { get; private set; }
+	[Serializable]
+	public class ApiException : BaseException
+	{
+		public IErrorsPayload Details { get; private set; }
+		public IResponse Response { get; private set; }
 
-        protected ApiException(string message) : base(message)
-        { }
+		protected ApiException() : base() { }
 
-        public static ApiException Factory(IErrorsPayload errorDetails, IResponse errorResponse)
-        {
-            var httpResponse = errorResponse.RawResponse;
-            var exceptionMessage = string.Format("API Error Occured [{0} {1}]", ((int)httpResponse.StatusCode).ToString(), httpResponse.ReasonPhrase);
-            exceptionMessage += errorDetails.RenderErrors();
-            var exception = new ApiException(exceptionMessage)
-            {
-                Details = errorDetails,
-                Response = errorResponse
-            };
-            return exception;
-        }
-    }
+		public ApiException(string message) : base(message) { }
+
+		public static ApiException Factory(IErrorsPayload errorDetails, IResponse errorResponse)
+		{
+			if (errorDetails == null) throw new ArgumentNullException(nameof(errorDetails));
+			if (errorResponse == null) throw new ArgumentNullException(nameof(errorResponse));
+
+			var httpResponse = errorResponse.RawResponse;
+			var exceptionMessage = $"API Error Occured [{((int)httpResponse.StatusCode)} {httpResponse.ReasonPhrase}]";
+			exceptionMessage += errorDetails.RenderErrors();
+			var exception = new ApiException(exceptionMessage)
+			{
+				Details = errorDetails,
+				Response = errorResponse
+			};
+			return exception;
+		}
+
+		public ApiException(string message, Exception innerException) : base(message, innerException) { }
+
+		protected ApiException(SerializationInfo info, StreamingContext context)
+			: base(info, context)
+		{
+			Details = (IErrorsPayload)info.GetValue("Details", typeof(IErrorsPayload));
+			Response = (IResponse)info.GetValue("Response", typeof(IResponse));
+		}
+	}
 }

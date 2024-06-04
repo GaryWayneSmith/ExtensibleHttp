@@ -15,11 +15,11 @@ using ExtensibleHttp.Interfaces;
 
 namespace ExtensibleHttp
 {
-    public class HttpFactory : IHttpFactory
-    {
-        public IHandler GetHttpHandler(IHttpConfig cfg)
-        {
-            return new Handler(cfg);
-        }
-    }
+	public class HttpFactory : IHttpFactory
+	{
+		public IHandler GetHttpHandler(IHttpConfig cfg)
+		{
+			return new Handler(cfg);
+		}
+	}
 }

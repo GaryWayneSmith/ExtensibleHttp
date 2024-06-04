@@ -13,20 +13,25 @@ limitations under the License.
 */
 
 using ExtensibleHttp.Interfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace ExtensibleHttp.Fetcher
 {
-    public abstract class BaseFetcher : IFetcher
-    {
-        protected IHttpConfig config;
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1012:Abstract types should not have public constructors", Justification = "<Pending>")]
+	public abstract class BaseFetcher : IFetcher
+	{
+		protected IHttpConfig HttpConfig => _httpConfig;
 
-        public BaseFetcher(IHttpConfig config)
-        {
-            this.config = config;
-        }
+		readonly IHttpConfig _httpConfig;
 
-        abstract public Task<IResponse> ExecuteAsync(IRequest request, CancellationToken cancellationToken);
-    }
+		public BaseFetcher(IHttpConfig httpConfig)
+		{
+			_httpConfig = httpConfig;
+		}
+
+		abstract public Task<IResponse> ExecuteAsync(IRequest request, CancellationToken cancellationToken);
+	}
 }

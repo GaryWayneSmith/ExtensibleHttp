@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 namespace ExtensibleHttp.Interfaces
 {
     public interface IHttpClient
-    {
+	{
         HttpClient HttpClient { get; }
         TimeSpan Timeout { get; set; }
         Uri BaseAddress { get; set; }

@@ -17,20 +17,15 @@ using System;
 
 namespace ExtensibleHttp.Payload
 {
-    public abstract class BasePayloadFactory : IPayloadFactory
-    {
-        protected static SerializerFactory serializerFactory;
+	public abstract class BasePayloadFactory : IPayloadFactory
+	{
+		protected static SerializerFactory SerializerFactory { get; private set; } = new SerializerFactory();
 
-        static BasePayloadFactory()
-        {
-            serializerFactory = new SerializerFactory();
-        }
+		public ISerializer GetSerializer(ApiFormat format)
+		{
+			return SerializerFactory.GetSerializer(format);
+		}
 
-        public ISerializer GetSerializer(ApiFormat format)
-        {
-            return serializerFactory.GetSerializer(format);
-        }
-
-        public abstract Exception CreateApiException(ApiFormat format, string content, IResponse response);
-    }
+		public abstract Exception CreateApiException(ApiFormat format, string content, IResponse response);
+	}
 }

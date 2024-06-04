@@ -17,8 +17,8 @@ namespace ExtensibleHttp.Sample.Implementation
         readonly static HttpClient _httpClient = new();
         readonly static SemaphoreSlim _lock = new(1);
 
-        public string AccessToken { get; set; }
-        public string TokenType { get; set; }
+        public string AccessToken { get; set; } = string.Empty;
+        public string TokenType { get; set; } = string.Empty;
         public DateTime Expiration { get; set; }
 
         public bool IsExpired
@@ -35,10 +35,10 @@ namespace ExtensibleHttp.Sample.Implementation
         class OAuthToken
         {
             [JsonProperty("access_token")]
-            public string AccessToken { get; set; }
+            public string AccessToken { get; set; } = string.Empty;
 
             [JsonProperty("token_type")]
-            public string TokenType { get; set; }
+            public string TokenType { get; set; } = string.Empty;
 
             [JsonProperty("expires_in")]
             public int Expires { get; set; }
@@ -51,41 +51,37 @@ namespace ExtensibleHttp.Sample.Implementation
             await _lock.WaitAsync(cancellationToken);
             try
             {
-                using (HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://oauthapihost/token"))
+
+                using HttpRequestMessage requestMessage = new(HttpMethod.Post, "https://oauthapihost/token");
+                string correlationId = Guid.NewGuid().ToString();
+                requestMessage.Headers.Add(SampleHeaders.USER_AGENT, config.UserAgent);
+                requestMessage.Headers.Add(SampleHeaders.AUTHORIZATION, config.Authorization);
+                requestMessage.Headers.Add(SampleHeaders.CORRELATION_ID, correlationId);
+
+                requestMessage.Headers.Add(SampleHeaders.ACCEPT, config.GetContentType(ApiFormat.Json));
+                requestMessage.Content = new FormUrlEncodedContent(new[]
                 {
-                    string correlationId = Guid.NewGuid().ToString();
-
-                    requestMessage.Headers.Add(SampleHeaders.USER_AGENT, config.UserAgent);
-                    requestMessage.Headers.Add(SampleHeaders.AUTHORIZATION, config.Authorization);
-                    requestMessage.Headers.Add(SampleHeaders.CORRELATION_ID, correlationId);
-
-                    requestMessage.Headers.Add(SampleHeaders.ACCEPT, config.GetContentType(ApiFormat.Json));
-                    requestMessage.Content = new FormUrlEncodedContent(new[]
-                    {
                         new KeyValuePair<string, string>("grant_type", "client_credentials"),
-                    });
+                });
 
-                    var response = await _httpClient
-                        .SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
-                        .ConfigureAwait(false);
+                var response = await _httpClient
+                    .SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+                    .ConfigureAwait(false);
 
-                    response.EnsureSuccessStatusCode();
+                response.EnsureSuccessStatusCode();
 
-                    string result = await response.Content.ReadAsStringAsync(cancellationToken);
+                string result = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-                    OAuthToken oAuthToken = new SerializerFactory()
-                        .GetSerializer(ApiFormat.Json)
-                        .Deserialize<OAuthToken>(result);
+                OAuthToken oAuthToken = new SerializerFactory()
+                    .GetSerializer(ApiFormat.Json)
+                    .Deserialize<OAuthToken>(result);
 
-                    return new SampleToken
-                    {
-                        AccessToken = oAuthToken.AccessToken,
-                        TokenType = oAuthToken.TokenType,
-                        Expiration = DateTime.UtcNow.AddSeconds(oAuthToken.Expires - 30),
-                    };
-
-
-                }
+                return new SampleToken
+                {
+                    AccessToken = oAuthToken.AccessToken,
+                    TokenType = oAuthToken.TokenType,
+                    Expiration = DateTime.UtcNow.AddSeconds(oAuthToken.Expires - 30),
+                };
             }
             finally
             {

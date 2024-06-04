@@ -17,37 +17,44 @@ using System.Text;
 
 namespace ExtensibleHttp.Serialization
 {
-    public class XmlSerializer : ISerializer
-    {
-        public sealed class Utf8StringWriter : StringWriter
-        {
-            public override Encoding Encoding => Encoding.UTF8;
-        }
+	public class XmlSerializer : ISerializer
+	{
+		private sealed class Utf8StringWriter : StringWriter
+		{
+			public override Encoding Encoding => Encoding.UTF8;
+		}
 
-        public TPayload Deserialize<TPayload>(string content)
-        {
-            var serializer = new System.Xml.Serialization.XmlSerializer(typeof(TPayload));
-            using (var reader = new StringReader(content))
-            {
-                return (TPayload)serializer.Deserialize(reader);
-            }
-        }
+		public TPayload Deserialize<TPayload>(string content)
+		{
+			var serializer = new System.Xml.Serialization.XmlSerializer(typeof(TPayload));
+			using (var reader = new StringReader(content))
+			{
+				// This is verified in that we are deserializing to our own defined DTD
+				// and not using the internal schema from the provided data.  
+#pragma warning disable CA5369
+#pragma warning disable CA3075
+				return (TPayload)serializer.Deserialize(reader);
+#pragma warning restore CA3075
+#pragma warning restore CA5369
+			}
+		}
 
-        /// <summary>
-        /// Converts to xml string and returns
-        /// </summary>
-        /// <returns></returns>
-        public string Serialize<TPayload>(TPayload item)
-        {
-            var serializer = new System.Xml.Serialization.XmlSerializer(typeof(TPayload));
-            var stringWriter = new Utf8StringWriter();
-            //if (((IPayload) item).Xmlns.Count > 0)
+		/// <summary>
+		/// Converts to xml string and returns
+		/// </summary>
+		/// <returns></returns>
+		public string Serialize<TPayload>(TPayload item)
+		{
+			var serializer = new System.Xml.Serialization.XmlSerializer(typeof(TPayload));
+			using (var stringWriter = new Utf8StringWriter())
+			{
+				//if (((IPayload) item).Xmlns.Any())
+				//    serializer.Serialize(stringWriter, item, ((IPayload) item).Xmlns);
+				//else
+				serializer.Serialize(stringWriter, item);
 
-            //    serializer.Serialize(stringWriter, item, ((IPayload) item).Xmlns);
-            //else
-            serializer.Serialize(stringWriter, item);
-
-            return stringWriter.ToString();
-        }
-    }
+				return stringWriter.ToString();
+			}
+		}
+	}
 }

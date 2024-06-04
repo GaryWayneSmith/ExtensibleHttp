@@ -14,7 +14,8 @@ limitations under the License.
 
 namespace ExtensibleHttp.Interfaces
 {
-    public interface IPayload
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1040:Avoid empty interfaces", Justification = "<Pending>")]
+	public interface IPayload
     {
         //XmlSerializerNamespaces Xmlns { get; set; }
     }

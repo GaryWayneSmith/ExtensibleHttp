@@ -12,13 +12,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using System;
+using System.Runtime.Serialization;
+
 namespace ExtensibleHttp.Exceptions
 {
-    public class ThrottleException : HttpException
-    {
-        public ThrottleException(string message) : base(message)
-        { }
-        public ThrottleException(string message, System.Exception exception) : base(message, exception)
-        { }
-    }
+	[Serializable]
+	public class ThrottleException : HttpException
+	{
+		public ThrottleException() : base("Throttle Exception") { }
+		public ThrottleException(string message) : base(message) { }
+		public ThrottleException(string message, System.Exception exception) : base(message, exception) { }
+		protected ThrottleException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+	}
 }

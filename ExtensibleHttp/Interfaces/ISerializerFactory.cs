@@ -14,7 +14,7 @@ limitations under the License.
 namespace ExtensibleHttp.Interfaces
 {
     public interface ISerializerFactory
-    {
+	{
         ISerializer GetSerializer(ApiFormat format);
     }
 }

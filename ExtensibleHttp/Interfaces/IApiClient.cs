@@ -14,9 +14,8 @@ limitations under the License.
 
 namespace ExtensibleHttp.Interfaces
 {
-    public interface IApiClient
-    {
-        ILoggerAdapter Logger { get; set; }
-        IRetryPolicy RetryPolicy { get; set; }
-    }
+	public interface IApiClient
+	{
+		IRetryPolicy RetryPolicy { get; set; }
+	}
 }

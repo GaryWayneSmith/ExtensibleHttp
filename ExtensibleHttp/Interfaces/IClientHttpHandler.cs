@@ -15,7 +15,7 @@ limitations under the License.
 namespace ExtensibleHttp.Interfaces
 {
     public interface IClientHttpHandler
-    {
+	{
         IRetryPolicy RetryPolicy { get; set; }
     }
 }

@@ -15,27 +15,21 @@ using ExtensibleHttp.Interfaces;
 
 namespace ExtensibleHttp.Serialization
 {
-    public class SerializerFactory : ISerializerFactory
-    {
-        private static readonly JsonSerializer jsonSerializer;
-        private static readonly XmlSerializer xmlSerializer;
+	public class SerializerFactory : ISerializerFactory
+	{
+		private static readonly JsonSerializer jsonSerializer = new JsonSerializer();
+		private static readonly XmlSerializer xmlSerializer = new XmlSerializer();
 
-        static SerializerFactory()
-        {
-            jsonSerializer = new JsonSerializer();
-            xmlSerializer = new XmlSerializer();
-        }
-
-        public ISerializer GetSerializer(ApiFormat format)
-        {
-            switch (format)
-            {
-                case ApiFormat.Json:
-                    return jsonSerializer;
-                default:
-                case ApiFormat.Xml:
-                    return xmlSerializer;
-            }
-        }
-    }
+		public ISerializer GetSerializer(ApiFormat format)
+		{
+			switch (format)
+			{
+				case ApiFormat.Json:
+					return jsonSerializer;
+				default:
+				case ApiFormat.Xml:
+					return xmlSerializer;
+			}
+		}
+	}
 }

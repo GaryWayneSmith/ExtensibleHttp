@@ -18,12 +18,12 @@ using System.Threading.Tasks;
 
 namespace ExtensibleHttp.Interfaces
 {
-    public interface IResponse
-    {
-        HttpStatusCode StatusCode { get; }
-        HttpResponseMessage RawResponse { get; }
-        bool IsSuccessful { get; }
-        Task<string> GetPayloadAsString(CancellationToken cancellationToken);
-        string CorrelationId { get; }
-    }
+	public interface IResponse
+	{
+		HttpStatusCode StatusCode { get; }
+		HttpResponseMessage RawResponse { get; }
+		bool IsSuccessful { get; }
+		Task<string> GetPayloadAsString(CancellationToken cancellationToken);
+		string CorrelationId { get; }
+	}
 }

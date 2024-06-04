@@ -13,14 +13,16 @@ limitations under the License.
 */
 
 using System;
+using System.Runtime.Serialization;
 
 namespace ExtensibleHttp.Exceptions
 {
-    public class BaseException : Exception
-    {
-        public BaseException(string message) : base(message)
-        { }
-        public BaseException(string message, System.Exception exception) : base(message, exception)
-        { }
-    }
+	[Serializable]
+	public class BaseException : Exception
+	{
+		public BaseException(string message) : base(message) { }
+		public BaseException(string message, System.Exception exception) : base(message, exception) { }
+		public BaseException() { }
+		protected BaseException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+	}
 }

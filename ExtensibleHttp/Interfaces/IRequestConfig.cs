@@ -11,15 +11,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+using Microsoft.Extensions.Logging;
+using System;
+
 namespace ExtensibleHttp.Interfaces
 {
     public interface IRequestConfig
     {
-        ApiFormat ApiFormat { get; }
-        string BaseUrl { get; }
+		ILogger Logger { get; }
+		ApiFormat ApiFormat { get; }
+        Uri BaseUri { get; }
         string UserAgent { get; }
         int RequestTimeoutMs { get; }
         string NewCorrelationId();
         string GetContentType(ApiFormat apiFormat);
     }
+
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1040:Avoid empty interfaces", Justification = "<Pending>")]
+	public interface IRequestConfig<T> where T : IRequestConfig
+	{
+	}
 }

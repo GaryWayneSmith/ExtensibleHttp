@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 namespace ExtensibleHttp.Interfaces
 {
     public interface IRetryPolicy
-    {
+	{
         Task<IResponse> GetResponse(IFetcher fetcher, IRequest request, CancellationToken cancellationToken);
     }
 }

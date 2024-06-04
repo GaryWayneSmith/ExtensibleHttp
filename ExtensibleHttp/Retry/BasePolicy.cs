@@ -19,26 +19,31 @@ using System.Threading.Tasks;
 
 namespace ExtensibleHttp.Retry
 {
-    public abstract class BasePolicy : IRetryPolicy
-    {
-        public IFetcher Fetcher;
-        protected IResponse response;
-        protected Exception latestException;
+	public abstract class BasePolicy : IRetryPolicy
+	{
+#pragma warning disable CA1721 // Property names should not match get methods
+		public IFetcher Fetcher { get; set; }
+		protected IResponse Response { get; private set; }
+		protected Exception LatestException { get; private set; }
+#pragma warning restore CA1721 // Property names should not match get methods
 
-        protected async Task<bool> ExecuteOnce(IFetcher fetcher, IRequest request, CancellationToken cancellationToken)
-        {
-            try
-            {
-                response = await fetcher.ExecuteAsync(request, cancellationToken);
-                return true;
-            }
-            catch (HttpException ex)
-            {
-                latestException = ex;
-                return false;
-            }
-        }
+		protected async Task<bool> ExecuteOnce(IFetcher fetcher, IRequest request, CancellationToken cancellationToken)
+		{
+			if (fetcher == null) throw new ArgumentNullException(nameof(fetcher));
+			if (request == null) throw new ArgumentNullException(nameof(request));
 
-        public abstract Task<IResponse> GetResponse(IFetcher fetcher, IRequest request, CancellationToken cancellationToken);
-    }
+			try
+			{
+				Response = await fetcher.ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
+				return true;
+			}
+			catch (HttpException ex)
+			{
+				LatestException = ex;
+				return false;
+			}
+		}
+
+		public abstract Task<IResponse> GetResponse(IFetcher fetcher, IRequest request, CancellationToken cancellationToken);
+	}
 }

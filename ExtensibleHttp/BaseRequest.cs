@@ -26,157 +26,178 @@ using System.Threading.Tasks;
 
 namespace ExtensibleHttp
 {
-    public abstract class BaseRequest : IRequest
-    {
-        public IRequestConfig Config { get; private set; }
-        public string EndpointUri { get; set; }
-        public HttpRequestMessage HttpRequest { get; }
-        public Dictionary<string, IEnumerable<string>> QueryParams { get; set; } = new Dictionary<string, IEnumerable<string>>();
-        public string CorrelationId { get; private set; }
-        protected static Dictionary<string, IEnumerable<string>> EMPTYHEADERS = new Dictionary<string, IEnumerable<string>>();
+	public abstract class BaseRequest : IRequest //<T> where T : IRequestConfig, new()
+	{
+		public IRequestConfig Config => _config;
+		public string EndpointUri { get; set; }
+		public HttpRequestMessage HttpRequest { get; private set; }
+		public Dictionary<string, IEnumerable<string>> QueryParams { get; private set; } = new Dictionary<string, IEnumerable<string>>();
+		public string CorrelationId { get; private set; }
+		protected static Dictionary<string, IEnumerable<string>> EMPTYHEADERS { get; private set; } = new Dictionary<string, IEnumerable<string>>();
+		readonly IRequestConfig _config;
 
-        public ApiFormat ApiFormat { get; set; }
+		public ApiFormat ApiFormat { get; set; }
 
-
-        public HttpMethod Method
-        {
-            get { return HttpRequest.Method; }
-            set { HttpRequest.Method = value; }
-        }
-
-        public BaseRequest(IRequestConfig cfg)
-        {
-            Config = cfg;
-            HttpRequest = new HttpRequestMessage();
-            CorrelationId = cfg.NewCorrelationId();
-            ApiFormat = cfg.ApiFormat;
-        }
-
-        public virtual void AddMultipartContent(byte[] content)
-        {
-            var multipartContent = new MultipartFormDataContent
-            {
-                new ByteArrayContent(content)
-            };
-            HttpRequest.Content = multipartContent;
-        }
-
-        public virtual void AddMultipartContent(System.IO.Stream contentStream)
-        {
-            var multipartContent = new MultipartFormDataContent
-            {
-                new StreamContent(contentStream)
-            };
-            HttpRequest.Content = multipartContent;
-        }
-
-        public virtual void AddPayload<T>(T payload)
-        {
-            var data = new SerializerFactory().GetSerializer(ApiFormat).Serialize(payload);
-            Debug.WriteLine(data);
-            AddPayload(data);
-        }
-
-        public virtual void AddPayload(string payload)
-        {
-            HttpRequest.Content = new StringContent(payload, Encoding.UTF8, Config.GetContentType(ApiFormat));
-            HttpRequest.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(
-                Config.GetContentType(Config.ApiFormat));
-            //HttpRequest.Content.Headers.ContentType.CharSet = "";
-
-        }
-
-        public virtual string BuildQueryParams()
-        {
-            var list = new List<string>();
-            foreach (var param in QueryParams)
-            {
-                if (param.Value != null && param.Value.Count() > 0)
-                {
-                    string value = string.Empty;
-
-                    if (param.Value.Count() > 1)
-                        value = string.Join(",", param.Value.Select(s => Uri.EscapeDataString(s)));
-                    else
-                        value = param.Value.First();
+		public HttpMethod Method
+		{
+			get { return HttpRequest.Method; }
+			set { HttpRequest.Method = value; }
+		}
 
 
-                    list.Add(Uri.EscapeDataString(param.Key) + "=" + Uri.EscapeDataString(value));
+		//protected BaseRequest(IRequestConfig config)
+		//	: this(null, null, config)
+		//{ 
+		//}
 
-                    //foreach (var value in param.Value)
-                    //{
-                    //	list.Add(Uri.EscapeDataString(param.Key) + "=" + Uri.EscapeDataString(value));
-                    //}
-                }
-            }
-            if (list.Count > 0)
-            {
-                return string.Join("&", list);
-            }
-            return "";
-        }
+		//protected BaseRequest(IConfiguration configuration, IRequestConfig config)
+		//	: this(configuration, null, config)
+		//{
+		//}
 
-        public virtual Task AddHeaders(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
-        public virtual Task AddUserAgentHeader(CancellationToken cancellationToken)
-        {
-            //HttpRequest.Headers.Add(Headers.USER_AGENT, Config.UserAgent.Replace(" ", "_"));
-            return Task.CompletedTask;
-        }
-
-        public virtual Task BuildUri(CancellationToken cancellationToken)
-        {
-            string queryString = BuildQueryParams();
-
-            if (!string.IsNullOrWhiteSpace(queryString))
-            {
-                if (!EndpointUri.Contains("?"))
-                {
-                    queryString = "?" + queryString;
-                }
-                else
-                {
-                    queryString = "&" + queryString;
-                }
-            }
-
-            HttpRequest.RequestUri = new Uri(Config.BaseUrl + EndpointUri + queryString);
-            return Task.CompletedTask;
-        }
-
-        public virtual Task FinalizeRequest(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
-        public virtual Task SignRequest(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
-        public virtual Task ValidateAccessToken(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+		protected BaseRequest(IRequestConfig config)
+		{
+			_config = config ?? throw new ArgumentNullException(nameof(config));
+			HttpRequest = new HttpRequestMessage();
+			CorrelationId = config.NewCorrelationId();
+			ApiFormat = config.ApiFormat;
+		}
 
 
-        public virtual Task ValidateResponse(IResponse response, CancellationToken cancellationToken)
-        {
-            if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
-            {
-                // 503 Service Unavailable
-                throw new GatewayException("Service is unavailable, gateway connection error");
-            }
+		public virtual void AddMultipartContent(byte[] content)
+		{
+#pragma warning disable CA2000 // Dispose objects before losing scope
+			var multipartContent = new MultipartFormDataContent
+			{
+				new ByteArrayContent(content)
+			};
+#pragma warning restore CA2000 // Dispose objects before losing scope
 
-            if (response.StatusCode == (HttpStatusCode)429)
-            {
-                // 429 Too many requests
-                throw new ThrottleException("HTTP request was throttled");
-            }
-            return Task.CompletedTask;
-        }
-    }
+			HttpRequest.Content = multipartContent;
+		}
+
+		public virtual void AddMultipartContent(System.IO.Stream contentStream)
+		{
+#pragma warning disable CA2000 // Dispose objects before losing scope
+			var multipartContent = new MultipartFormDataContent
+			{
+				new StreamContent(contentStream)
+			};
+#pragma warning restore CA2000 // Dispose objects before losing scope
+
+			HttpRequest.Content = multipartContent;
+		}
+
+		public virtual void AddPayload<T>(T payload)
+		{
+			var data = new SerializerFactory().GetSerializer(ApiFormat).Serialize(payload);
+			Debug.WriteLine(data);
+			AddPayload(data);
+		}
+
+		public virtual void AddPayload(string payload)
+		{
+			System.Net.Http.Headers.MediaTypeHeaderValue mediaType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(Config.GetContentType(Config.ApiFormat));
+			HttpRequest.Content = new StringContent(payload, Encoding.UTF8, mediaType.MediaType);
+			HttpRequest.Content.Headers.ContentType = mediaType;
+		}
+
+		public virtual string BuildQueryParams()
+		{
+			var list = new List<string>();
+			foreach (var param in QueryParams)
+			{
+				if (param.Value != null && param.Value.Any())
+				{
+					string value = string.Empty;
+
+					if (param.Value.Count() > 1)
+						value = string.Join(",", param.Value.Select(s => Uri.EscapeDataString(s)));
+					else
+						value = param.Value.First();
+
+					list.Add(Uri.EscapeDataString(param.Key) + "=" + Uri.EscapeDataString(value));
+
+					//foreach (var value in param.Value)
+					//{
+					//	list.Add(Uri.EscapeDataString(param.Key) + "=" + Uri.EscapeDataString(value));
+					//}
+				}
+			}
+			if (list.Count > 0)
+			{
+				return string.Join("&", list);
+			}
+			return "";
+		}
+
+		public virtual Task AddHeaders(CancellationToken cancellationToken)
+		{
+			return Task.CompletedTask;
+		}
+
+		public virtual Task AddUserAgentHeader(CancellationToken cancellationToken)
+		{
+			if (string.IsNullOrWhiteSpace(Config.UserAgent)) throw new InvalidValueException("Config.UserAgent");
+
+			HttpRequest.Headers.Add(BaseHeaders.USER_AGENT, Config.UserAgent.Replace(' ', '_'));
+			return Task.CompletedTask;
+		}
+
+		public virtual Task BuildUri(CancellationToken cancellationToken)
+		{
+			string queryString = BuildQueryParams();
+
+			if (!string.IsNullOrWhiteSpace(queryString))
+			{
+#pragma warning disable CA1307 // Specify StringComparison for clarity
+				if (!EndpointUri.Contains('?'))
+				{
+					queryString = "?" + queryString;
+				}
+				else
+				{
+					queryString = "&" + queryString;
+				}
+#pragma warning restore CA1307 // Specify StringComparison for clarity
+			}
+
+			HttpRequest.RequestUri = new Uri(Config.BaseUri, EndpointUri + queryString);
+			return Task.CompletedTask;
+		}
+
+		public virtual Task FinalizeRequest(CancellationToken cancellationToken)
+		{
+			return Task.CompletedTask;
+		}
+
+		public virtual Task SignRequest(CancellationToken cancellationToken)
+		{
+			return Task.CompletedTask;
+		}
+
+		public virtual Task ValidateAccessToken(CancellationToken cancellationToken)
+		{
+			return Task.CompletedTask;
+		}
+
+
+		public virtual Task ValidateResponse(IResponse response, CancellationToken cancellationToken)
+		{
+			if (response == null) throw new ArgumentNullException(nameof(response));
+
+			if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
+			{
+				// 503 Service Unavailable
+				throw new GatewayException("Service is unavailable, gateway connection error");
+			}
+
+			if (response.StatusCode == (HttpStatusCode)429)
+			{
+				// 429 Too many requests
+				throw new ThrottleException("HTTP request was throttled");
+			}
+			return Task.CompletedTask;
+		}
+	}
 }

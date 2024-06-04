@@ -12,15 +12,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using System;
+using System.Runtime.Serialization;
+
 namespace ExtensibleHttp.Exceptions
 {
-    public class InitException : BaseException
-    {
-        public InitException(string message) : base(message)
-        {
-        }
-        public InitException(string message, System.Exception exception) : base(message, exception)
-        {
-        }
-    }
+	[Serializable]
+	public class InitException : BaseException
+	{
+		protected InitException() : base() { }
+		public InitException(string message) : base(message) { }
+		public InitException(string message, System.Exception exception) : base(message, exception) { }
+		protected InitException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+	}
 }

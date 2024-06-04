@@ -12,23 +12,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using System;
+using System.Runtime.Serialization;
+
 namespace ExtensibleHttp.Exceptions
 {
-    public class NoRetriesLeftException : BaseException
-    {
-        public int RetryCount { get; private set; }
+	[Serializable]
+	public class NoRetriesLeftException : BaseException
+	{
+		public int RetryCount { get; private set; }
 
-        private NoRetriesLeftException(string message, System.Exception innerException) : base(message, innerException)
-        { }
+		protected NoRetriesLeftException() : base() { }
+		protected NoRetriesLeftException(string message) : base(message) { }
+		protected NoRetriesLeftException(string message, System.Exception innerException) : base(message, innerException) { }
 
-        public static NoRetriesLeftException Factory(int retryCount, System.Exception innerException)
-        {
-            var exceptionMessage = string.Format("All {0} retry attempts spent. ", retryCount.ToString());
-            var exception = new NoRetriesLeftException(exceptionMessage, innerException)
-            {
-                RetryCount = retryCount
-            };
-            return exception;
-        }
-    }
+		public static NoRetriesLeftException Factory(int retryCount, System.Exception innerException)
+		{
+			var exceptionMessage = $"All {retryCount} retry attempts spent. ";
+			var exception = new NoRetriesLeftException(exceptionMessage, innerException)
+			{
+				RetryCount = retryCount
+			};
+			return exception;
+		}
+
+		protected NoRetriesLeftException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+	}
 }

@@ -39,7 +39,7 @@ namespace ExtensibleHttp
 
         public async Task<string> GetPayloadAsString(CancellationToken cancellationToken)
         {
-            return await originalResponse.Content.ReadAsStringAsync();
+            return await originalResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
         }
     }
 }

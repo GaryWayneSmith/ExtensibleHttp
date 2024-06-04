@@ -12,51 +12,84 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 using ExtensibleHttp.Interfaces;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Reflection;
 
 namespace ExtensibleHttp
 {
-    public abstract class BaseConfig : IRequestConfig, IApiClientConfig
-    {
-        public string BaseUrl { get; set; } = "";
-        public string UserAgent { get; set; }
-        public ApiFormat PayloadFormat { get; set; } = ApiFormat.Json;
+	public abstract class BaseConfig : IRequestConfig, IApiClientConfig
+	{
+		public Uri BaseUri { get; set; }
+		public string UserAgent { get; set; }
 
-        // just another name for paylod format we also use it for http request
-        // and in this case it helps to determine value of contet-type header, not payload
-        public ApiFormat ApiFormat
-        {
-            get { return PayloadFormat; }
-            set { PayloadFormat = value; }
-        }
-        public int RequestTimeoutMs { get; set; } = 100000; // in milliseconds
+		public ILogger Logger { get; set; }
 
-        public string NewCorrelationId()
-        {
-            return Guid.NewGuid().ToString();
-        }
+		/// <summary>
+		/// API payload format
+		/// </summary>
+		[JsonConverter(typeof(StringEnumConverter))]
+		public ApiFormat ApiFormat { get; set; }
 
-        public string GetContentType(ApiFormat apiFormat)
-        {
-            switch (apiFormat)
-            {
-                case ApiFormat.Json:
-                    return "application/json";
-                default:
-                case ApiFormat.Xml:
-                    return "application/xml";
-            }
-        }
+		public int RequestTimeoutMs { get; set; } = 100000; // in milliseconds
 
-        public BaseConfig()
-        {
-            var assembly = GetType().GetTypeInfo().Assembly;
-            UserAgent = $".Net_{assembly.GetName().Name}_v{assembly.GetName().Version}";
-        }
+		public string NewCorrelationId()
+		{
+			return Guid.NewGuid().ToString();
+		}
 
-        public IRequestConfig GetRequestConfig() => this;
+		/// <summary>
+		/// Override this to provider your own customized contenttype matching
+		/// 
+		/// Defaults to whatever is passed in if using fixed type of ApiFormat
+		/// </summary>
+		/// <param name="apiFormat"></param>
+		/// <returns></returns>
+		public virtual string GetContentType(string apiFormat)
+		{
+			return apiFormat;
+		}
 
+		/// <summary>
+		/// Use this for basic default xml and json format types.  Anything exotic 
+		/// should use the GetContentType(string) signature.
+		/// </summary>
+		/// <param name="apiFormat"></param>
+		/// <returns></returns>
+		public string GetContentType(ApiFormat apiFormat)
+		{
+			switch (apiFormat)
+			{
+				case ApiFormat.Json:
+					return "application/json";
+				default:
+				case ApiFormat.Xml:
+					return "application/xml";
+			}
+		}
 
-    }
+		protected BaseConfig()
+			: this(null)
+		{
+
+		}
+
+		protected BaseConfig(ILogger logger)
+		{
+			var assembly = GetType().GetTypeInfo().Assembly;
+			UserAgent = $".Net_{assembly.GetName().Name}_v{assembly.GetName().Version}";
+			Logger = logger ?? NullLogger.Instance;
+		}
+
+		public IRequestConfig GetRequestConfig() => this;
+
+		public virtual BaseApiClient GetApiClient()
+		{
+			return new ApiClient(this);
+		}
+
+	}
 }

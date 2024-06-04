@@ -20,9 +20,9 @@ namespace ExtensibleHttp.Serialization
 {
     public class JsonSerializer : ISerializer
     {
-        public TPayload Deserialize<TPayload>(string jsonString)
+        public TPayload Deserialize<TPayload>(string content)
         {
-            return JsonConvert.DeserializeObject<TPayload>(jsonString);
+            return JsonConvert.DeserializeObject<TPayload>(content);
         }
 
         /// <summary>

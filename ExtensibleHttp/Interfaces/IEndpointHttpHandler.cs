@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 namespace ExtensibleHttp.Interfaces
 {
     public interface IEndpointHttpHandler
-    {
+	{
         IFetcher Fetcher { get; }
         Task<IResponse> GetAsync(IRequest request, CancellationToken cancellationToken);
         Task<IResponse> PostAsync(IRequest request, CancellationToken cancellationToken);
