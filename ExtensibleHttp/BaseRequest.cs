@@ -44,17 +44,6 @@ namespace ExtensibleHttp
 			set { HttpRequest.Method = value; }
 		}
 
-
-		//protected BaseRequest(IRequestConfig config)
-		//	: this(null, null, config)
-		//{ 
-		//}
-
-		//protected BaseRequest(IConfiguration configuration, IRequestConfig config)
-		//	: this(configuration, null, config)
-		//{
-		//}
-
 		protected BaseRequest(IRequestConfig config)
 		{
 			_config = config ?? throw new ArgumentNullException(nameof(config));
@@ -62,7 +51,6 @@ namespace ExtensibleHttp
 			CorrelationId = config.NewCorrelationId();
 			ApiFormat = config.ApiFormat;
 		}
-
 
 		public virtual void AddMultipartContent(byte[] content)
 		{

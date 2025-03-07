@@ -40,10 +40,6 @@ namespace ExtensibleHttp.Fetcher
 
 		public async Task<IResponse> SendAsync(IRequest request, CancellationToken cancellationToken)
 		{
-			if (request.Config.Logger != null)
-			{
-				request.HttpRequest.Properties.Add(Logger.DefaultLogger.LOGGERKEY, request.Config.Logger);
-			}
 			var result = await client.SendAsync(request.HttpRequest, cancellationToken).ConfigureAwait(false);
 			return new Response(result, request.CorrelationId);
 		}

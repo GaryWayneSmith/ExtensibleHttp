@@ -11,14 +11,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-using Microsoft.Extensions.Logging;
 using System;
 
 namespace ExtensibleHttp.Interfaces
 {
 	public interface IHttpConfig
 	{
-		ILogger Logger { get; }
 		ApiFormat ApiFormat { get; set; }
 		int RequestTimeoutMs { get; }
 		Uri BaseUri { get; }

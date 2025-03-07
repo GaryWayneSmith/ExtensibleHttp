@@ -13,6 +13,7 @@ limitations under the License.
 */
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -25,6 +26,8 @@ namespace ExtensibleHttp.Logger
 	public class DefaultLogger : DelegatingHandler
 	{
 		internal const string LOGGERKEY = "Logger";
+
+		public static ILogger Logger { get; set; } = NullLogger.Instance;
 
 		public DefaultLogger(HttpMessageHandler innerHandler) : base(innerHandler)
 		{ }
@@ -66,19 +69,16 @@ namespace ExtensibleHttp.Logger
 		{
 			if (request == null) throw new ArgumentNullException(nameof(request));
 
-			ILogger logger = request.Properties.TryGetValue(LOGGERKEY, out object value) ? value as ILogger : null;
-
-			if (logger != null
-				&& logger.IsEnabled(LogLevel.Debug))
+			if (Logger.IsEnabled(LogLevel.Debug))
 			{
 				string debugMessage = await GenerateRequestMessage(request).ConfigureAwait(false);
 #pragma warning disable CA1848 // Use the LoggerMessage delegates
-				logger.LogDebug("{Message}", debugMessage);
+				Logger.LogDebug("{Message}", debugMessage);
 
 				HttpResponseMessage response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
 				debugMessage = await GenerateResponseLog(response).ConfigureAwait(false);
-				logger.LogDebug("{Message}", debugMessage);
+				Logger.LogDebug("{Message}", debugMessage);
 #pragma warning restore CA1848 // Use the LoggerMessage delegates
 
 				return response;

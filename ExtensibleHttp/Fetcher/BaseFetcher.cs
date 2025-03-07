@@ -20,14 +20,13 @@ using System.Threading.Tasks;
 
 namespace ExtensibleHttp.Fetcher
 {
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1012:Abstract types should not have public constructors", Justification = "<Pending>")]
 	public abstract class BaseFetcher : IFetcher
 	{
 		protected IHttpConfig HttpConfig => _httpConfig;
 
 		readonly IHttpConfig _httpConfig;
 
-		public BaseFetcher(IHttpConfig httpConfig)
+		protected BaseFetcher(IHttpConfig httpConfig)
 		{
 			_httpConfig = httpConfig;
 		}

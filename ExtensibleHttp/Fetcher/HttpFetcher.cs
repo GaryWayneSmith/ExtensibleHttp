@@ -57,8 +57,6 @@ namespace ExtensibleHttp.Fetcher
 
 			try
 			{
-				//await Util.LogToFile.WriteLogString(request.CorrelationId, request.HttpRequest.RequestUri.ToString(), "Uri", ".txt");
-				//await Util.LogToFile.WriteLogString(request.CorrelationId, request.HttpRequest.Content != null ? await request.HttpRequest.Content.ReadAsStringAsync() : "NO PAYLOAD", "Request", config.ApiFormat.ToString().ToLower());
 				var response = await Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
 				await request.ValidateResponse(response, cancellationToken).ConfigureAwait(false);

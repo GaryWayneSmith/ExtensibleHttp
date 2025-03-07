@@ -24,9 +24,9 @@ namespace ExtensibleHttp.Exceptions
 
 		protected NoRetriesLeftException() : base() { }
 		protected NoRetriesLeftException(string message) : base(message) { }
-		protected NoRetriesLeftException(string message, System.Exception innerException) : base(message, innerException) { }
+		protected NoRetriesLeftException(string message, Exception innerException) : base(message, innerException) { }
 
-		public static NoRetriesLeftException Factory(int retryCount, System.Exception innerException)
+		public static NoRetriesLeftException Factory(int retryCount, Exception innerException)
 		{
 			var exceptionMessage = $"All {retryCount} retry attempts spent. ";
 			var exception = new NoRetriesLeftException(exceptionMessage, innerException)

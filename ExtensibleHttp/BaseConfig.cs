@@ -26,8 +26,6 @@ namespace ExtensibleHttp
 		public Uri BaseUri { get; set; }
 		public string UserAgent { get; set; }
 
-		public ILogger Logger { get; set; }
-
 		/// <summary>
 		/// API payload format
 		/// </summary>
@@ -72,16 +70,10 @@ namespace ExtensibleHttp
 		}
 
 		protected BaseConfig()
-			: this(null)
-		{
-
-		}
-
-		protected BaseConfig(ILogger logger)
 		{
 			var assembly = GetType().GetTypeInfo().Assembly;
 			UserAgent = $".Net_{assembly.GetName().Name}_v{assembly.GetName().Version}";
-			Logger = logger ?? NullLogger.Instance;
+
 		}
 
 		public IRequestConfig GetRequestConfig() => this;

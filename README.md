@@ -7,8 +7,6 @@ The framework callback example included is designed to handle the complex nuance
 
 This project was derived from the original works of walmartlabs (https://github.com/walmartlabs/partnerapi_sdk_dotnet), licensed under http://www.apache.org/licenses/LICENSE-2.0
 
-
-
 ## Implementation
 
 ### Sample config
@@ -16,12 +14,12 @@ This project was derived from the original works of walmartlabs (https://github.
 ```
     public class SampleConfig : BaseConfig
     {
-        private SampleConfig(ILogger logger)
-            : base(logger)
+        private SampleConfig(IConfiguration config)
+            : base()
         {
-                BaseUri = "http://example.net",
-                ApiFormat = ApiFormat.Json,
-                UserAgent = "MyClient",
+            BaseUri = "http://example.net",
+            ApiFormat = ApiFormat.Json,
+            UserAgent = "MyClient",
         }
     }
 
@@ -54,7 +52,12 @@ This project was derived from the original works of walmartlabs (https://github.
 
 ### Sample application
 ```
-    SampleConfig config = new SampleConfig(NullLogger.Instance);
+	IConfiguration configuration = new ConfigurationBuilder()
+		.AddUserSecrets("ExtensibleHttp.Sample")
+		.AddJsonFile("appsettings.json", false, true)
+		.Build();
+
+    SampleConfig config = new SampleConfig(configuration);
     ApiClient apiClient = new(config);
     SampleResource resource = new(apiClient);
     string result = await resource.GetString(CancellationToken.None);
@@ -92,6 +95,9 @@ This can be handled by adding a validation check on the token and overriding Val
 ## Roadmap
 
 * Integration of IConfiguraton and ILogger into the core system (WIP)
-* Redefine the Config to map to &lt;T&gt for easier reference in the base classes
+	- Active path is to handle this is in the Config class as per the example
+* Redefine the Config to map to &lt;T&gt for easier reference in the base classes		
+	- Scrapped. The effort for the little gain is current not worth it.
 * Sample API endpoints and better sample code.
+	- Need to find or create a simple OAuth2 test setup.
 
