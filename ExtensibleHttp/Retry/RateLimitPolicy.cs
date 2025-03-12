@@ -93,6 +93,10 @@ namespace ExtensibleHttp.Retry
 						throw NoRetriesLeftException.Factory(RetryCount, ex);
 					}
 					cancellationToken.ThrowIfCancellationRequested();
+					// Set RequestsSent to Burst to ensure that the delay is correct and
+					// LastRequest to now so we can work our way down the throttle as expected
+					UsagePlansTimings[RateLimitType].LastRequest = DateTime.UtcNow;
+					UsagePlansTimings[RateLimitType].RequestsSent = UsagePlansTimings[RateLimitType].Burst;
 					await UsagePlansTimings[RateLimitType].Delay(cancellationToken).ConfigureAwait(false);
 					tryCount++;
 				}
