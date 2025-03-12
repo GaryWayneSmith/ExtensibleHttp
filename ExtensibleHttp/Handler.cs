@@ -39,41 +39,66 @@ namespace ExtensibleHttp
 
 		private Task<IResponse> ExecuteAsync(IRequest request, CancellationToken cancellationToken)
 		{
-			if (request == null) throw new ArgumentNullException(nameof(request));
+			return ExecuteAsync(request, null, cancellationToken);
+		}
 
-			return RetryPolicy.GetResponse(Fetcher, request, cancellationToken);
+		private Task<IResponse> ExecuteAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken)
+		{
+			if (request == null) throw new ArgumentNullException(nameof(request));
+			retryPolicy = retryPolicy ?? RetryPolicy;
+			return retryPolicy.GetResponse(Fetcher, request, cancellationToken);
 		}
 
 		public Task<IResponse> GetAsync(IRequest request, CancellationToken cancellationToken)
 		{
+			return GetAsync(request, null, cancellationToken);
+		}
+
+		public Task<IResponse> GetAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken)
+		{
 			if (request == null) throw new ArgumentNullException(nameof(request));
 
 			request.Method = HttpMethod.Get;
-			return ExecuteAsync(request, cancellationToken);
+			return ExecuteAsync(request, retryPolicy, cancellationToken);
 		}
 
 		public Task<IResponse> PostAsync(IRequest request, CancellationToken cancellationToken)
 		{
+			return PostAsync(request, null, cancellationToken);
+		}
+
+		public Task<IResponse> PostAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken)
+		{
 			if (request == null) throw new ArgumentNullException(nameof(request));
 
 			request.Method = HttpMethod.Post;
-			return ExecuteAsync(request, cancellationToken);
+			return ExecuteAsync(request, retryPolicy, cancellationToken);
 		}
 
 		public Task<IResponse> PutAsync(IRequest request, CancellationToken cancellationToken)
 		{
+			return PutAsync(request, null, cancellationToken);
+		}
+
+		public Task<IResponse> PutAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken)
+		{
 			if (request == null) throw new ArgumentNullException(nameof(request));
 
 			request.Method = HttpMethod.Put;
-			return ExecuteAsync(request, cancellationToken);
+			return ExecuteAsync(request, retryPolicy, cancellationToken);
 		}
 
 		public Task<IResponse> DeleteAsync(IRequest request, CancellationToken cancellationToken)
 		{
+			return DeleteAsync(request, null, cancellationToken);
+		}
+
+		public Task<IResponse> DeleteAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken)
+		{
 			if (request == null) throw new ArgumentNullException(nameof(request));
 
 			request.Method = HttpMethod.Delete;
-			return ExecuteAsync(request, cancellationToken);
+			return ExecuteAsync(request, retryPolicy, cancellationToken);
 		}
 	}
 }

@@ -76,6 +76,17 @@ namespace ExtensibleHttp
 			HttpRequest.Content = multipartContent;
 		}
 
+		public virtual void AddQueryParam(string key, string value)
+		{
+			QueryParams.Add(key, new List<string> { value });
+		}
+
+		public virtual void AddQueryParams(string key, IEnumerable<string> value)
+		{
+			QueryParams.Add(key, value);
+		}
+
+
 		public virtual void AddPayload<T>(T payload)
 		{
 			var data = new SerializerFactory().GetSerializer(ApiFormat).Serialize(payload);

@@ -13,19 +13,25 @@ IConfiguration configuration = new ConfigurationBuilder()
 	.AddJsonFile("appsettings.json", false, true)
 	.Build();
 
+
+// Burst 10, recovering at a rate of 0.5 requests per second
+// 2 seconds to recover a request
+//ExtensibleHttp.Retry.RateLimitPolicy.AppendPolicy("Sample", 0.5m, 10);
+// Burst 2, recovering at a rate of 0.1 requests per second
+// 10 seconds to recover a request
+ExtensibleHttp.Retry.RateLimitPolicy.AppendPolicy("Sample", 0.1m, 2);
+
+
+
 SampleConfig config = await SampleConfig.GetConfig(configuration, ApiFormat.Json, CancellationToken.None);
 ApiClient apiClient = new(config);
 SampleResource resource = new(apiClient);
 for (int i = 0; i < 15; i++)
 {
-	string force = string.Empty;
-	if (i % 3 == 0)
-		force = "yes";
-	else if (i % 7 == 0)
-		force = "maybe";
-
-	SampleResult result = await resource.Getdata(force, CancellationToken.None);
-	Debug.WriteLine(result.ToString());
-
+	var result = await resource.Getdata("star", CancellationToken.None);
+	//Debug.WriteLine($"Index: {i}, Length of result: {result.ToString().Length}");
+	//Debug.WriteLine(result.ToString());
+	 if (i == 6)
+		await Task.Delay(30000);
 
 }

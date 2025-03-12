@@ -39,7 +39,6 @@ namespace ExtensibleHttp.Sample.Implementation
 		{
 			SampleConfig config = (SampleConfig)Config;
 			await config.ValidateToken(cancellationToken);
-
 		}
 	}
 }

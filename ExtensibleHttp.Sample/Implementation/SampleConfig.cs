@@ -16,6 +16,7 @@ namespace ExtensibleHttp.Sample.Implementation
 		public string ClientId { get; private set; } = string.Empty;
 		public string ClientSecret { get; private set; } = string.Empty;
 		public string Authorization { get; private set; } = string.Empty;
+		public string BearerToken { get; set; } = string.Empty;
 
 		static public SampleToken Token { get; private set; } = new SampleToken();
 
@@ -28,6 +29,8 @@ namespace ExtensibleHttp.Sample.Implementation
 
 			public string ClientId { get; set; } = string.Empty;
 			public string ClientSecret { get; set; } = string.Empty;
+
+			public string BearerToken { get; set; } = string.Empty;
 		}
 
 		private SampleConfig(ConfigOptions options)
@@ -39,6 +42,9 @@ namespace ExtensibleHttp.Sample.Implementation
 			ClientId = options.ClientId;
 			ClientSecret = options.ClientSecret;
 			RequestTimeoutMs = options.RequestTimeoutMs;
+			BearerToken = options.BearerToken;
+
+			Authorization = "Bearer " + BearerToken;
 		}
 
 		public static async Task<SampleConfig> GetConfig(IConfiguration configuration, ApiFormat apiFormat, CancellationToken cancellationToken)

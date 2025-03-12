@@ -17,12 +17,18 @@ using System.Threading.Tasks;
 
 namespace ExtensibleHttp.Interfaces
 {
-    public interface IEndpointHttpHandler
+	public interface IEndpointHttpHandler
 	{
-        IFetcher Fetcher { get; }
-        Task<IResponse> GetAsync(IRequest request, CancellationToken cancellationToken);
-        Task<IResponse> PostAsync(IRequest request, CancellationToken cancellationToken);
-        Task<IResponse> PutAsync(IRequest request, CancellationToken cancellationToken);
-        Task<IResponse> DeleteAsync(IRequest request, CancellationToken cancellationToken);
-    }
+		IFetcher Fetcher { get; }
+		Task<IResponse> GetAsync(IRequest request, CancellationToken cancellationToken);
+		Task<IResponse> PostAsync(IRequest request, CancellationToken cancellationToken);
+		Task<IResponse> PutAsync(IRequest request, CancellationToken cancellationToken);
+		Task<IResponse> DeleteAsync(IRequest request, CancellationToken cancellationToken);
+
+		Task<IResponse> GetAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken);
+		Task<IResponse> PostAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken);
+		Task<IResponse> PutAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken);
+		Task<IResponse> DeleteAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken);
+
+	}
 }
