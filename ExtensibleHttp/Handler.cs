@@ -37,12 +37,12 @@ namespace ExtensibleHttp
 			RetryPolicy = new SingleTryPolicy();
 		}
 
-		private Task<IResponse> ExecuteAsync(IRequest request, CancellationToken cancellationToken)
+		public Task<IResponse> ExecuteAsync(IRequest request, CancellationToken cancellationToken)
 		{
 			return ExecuteAsync(request, null, cancellationToken);
 		}
 
-		private Task<IResponse> ExecuteAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken)
+		public Task<IResponse> ExecuteAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken)
 		{
 			if (request == null) throw new ArgumentNullException(nameof(request));
 			retryPolicy = retryPolicy ?? RetryPolicy;

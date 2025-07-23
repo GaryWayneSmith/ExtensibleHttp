@@ -24,11 +24,13 @@ namespace ExtensibleHttp.Interfaces
 		Task<IResponse> PostAsync(IRequest request, CancellationToken cancellationToken);
 		Task<IResponse> PutAsync(IRequest request, CancellationToken cancellationToken);
 		Task<IResponse> DeleteAsync(IRequest request, CancellationToken cancellationToken);
+		Task<IResponse> ExecuteAsync(IRequest request, CancellationToken cancellationToken);
 
 		Task<IResponse> GetAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken);
 		Task<IResponse> PostAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken);
 		Task<IResponse> PutAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken);
 		Task<IResponse> DeleteAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken);
+		Task<IResponse> ExecuteAsync(IRequest request, IRetryPolicy retryPolicy, CancellationToken cancellationToken);
 
 	}
 }
